@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/03 18:19:59 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/06 23:31:31 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/07 00:34:06 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,18 +164,22 @@ char **transform_args_to_cmds(char **argv)
 	return (res);
 }
 
+void	dups(int fd1, int fd2)
+{
+	dup2(fd1, STDIN_FILENO);
+	dup2(fd2, STDOUT_FILENO);
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	char **paths;
 	int **truby;
 	int fd;
 	int fd2;
-	int fd3;
 	int number_of_children;
 	int number_of_pipes;
-	// pid_t pid;
 	pid_t *pids;
-	// pid_t pid3;
+	int	here_doc;
 	int i;
 	char **cmds;
 
@@ -183,49 +187,37 @@ int	main(int argc, char **argv, char **env)
 	if (argc < 5)
 		return (0);
 	cmds = transform_args_to_cmds(argv);
-	if (!ft_strncmp(cmds[0], "here_doc", 8))
-		fd = STDIN_FILENO;
-	else
-		fd = open(argv[1], O_RDONLY);
+	here_doc = !ft_strncmp(cmds[0], "here_doc", 8);
 	number_of_children = argc - 3;
 	number_of_pipes = number_of_children - 1;
 	truby = make_truby(number_of_pipes);
 	pids = make_pids(number_of_children);
-	fd2 = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0644);
-	fd3 = open("logs", O_RDWR | O_TRUNC | O_CREAT, 0644);
-	// printf("%d\n", fd3);
-	paths = get_paths(env);
+	fd = open(argv[1], O_RDONLY);
 	i = 0;
+	if (!here_doc)
+		fd2 = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0644);
+	else
+	{
+		fd2 = open(argv[argc - 1], O_RDWR | O_CREAT | O_APPEND, 0644);
+		char **args = ft_split(cmds[0], " "); 
+		read_from_to(args[1], STDIN_FILENO, truby[0][1], number_of_pipes);
+		ft_split_clear(args);
+		i++;
+	}
+	paths = get_paths(env);
 	while (i <= number_of_pipes)
 	{
 		pids[i] = fork();
 		if (!pids[i])
 		{
 			if (i == 0)
-			{
-				dup2(fd, STDIN_FILENO);
-				dup2(truby[0][1], STDOUT_FILENO); 
-			}
+				dups(fd, truby[0][1]);
 			else if (i == number_of_children - 1)
-			{
-				dup2(truby[i-1][0], STDIN_FILENO);
-				dup2(fd2, STDOUT_FILENO); 
-			}
+				dups(truby[i-1][0], fd2);
 			else
-			{
-				dup2(truby[i - 1][0], STDIN_FILENO);
-				dup2(truby[i][1], STDOUT_FILENO); 
-			}
+				dups(truby[i - 1][0], truby[i][1]);
 			close_truby(truby, i, number_of_pipes);
-			ft_putnbr_fd(i, fd3);
 			char **args = ft_split(cmds[i], " ");
-			if (!ft_strncmp(args[0], "here_doc\0", 9))
-			{	
-				read_from_to(args[1], STDIN_FILENO, STDOUT_FILENO, number_of_pipes);
-				ft_split_clear(args);
-				return (0);
-			}
-			else{
 			char *path = valid_path(paths, args[0]); 
 			if(!path)
 			{
@@ -234,26 +226,17 @@ int	main(int argc, char **argv, char **env)
 				free(path);
 				exit (1);
 			}
-			execve(path, args, env);}
+			execve(path, args, env);
 		}
 		i++;
 	}
-	
-	// pid3 = fork();
-	// if (!pid3)
-	// {
-	// 	dup2(truby[1][0], STDIN_FILENO);
-	// 	close_truby(truby, 2, argc-4);
-	// 	dup2(fd2, STDOUT_FILENO);
-	// 	char **args = ft_split(argv[4], " ");
-	// 	char *path = valid_path(paths, args[0]);
-	// 	execve(path, args, env);
-	// }
 	plumber(truby);
+	if (here_doc)
+		free(cmds[0]); 
+	free(cmds);
 	waitress(pids, number_of_children);
 	close(fd);
 	close(fd2);
-	free(valid_path(paths, "ls"));
 	ft_split_clear(paths);
 	free(pids);
 	return (0);
