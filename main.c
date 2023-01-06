@@ -6,11 +6,23 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/03 18:19:59 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/05 03:10:31 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/06 23:31:31 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+char *join_three_lines(char *str1, char *str2, char *str3)
+{
+	char *res;
+	char *mid_res;
+
+	mid_res = ft_strjoin(str1, str2);
+	res = ft_strjoin(mid_res, str3);
+	free(mid_res);
+	return (res);
+}
+
 char	**get_paths(char **env)
 {
 	int		i;
@@ -120,16 +132,37 @@ pid_t	*make_pids(int n)
 	return (res);
 }
 
-// void waitress(pid_t *pids, int len)
-// {
-// 	int i;
+void waitress(pid_t *pids, int len)
+{
+	while(len)
+		waitpid(pids[--len], NULL, 0);
+}
 
+char **transform_args_to_cmds(char **argv)
+{
+	char **res;
+	int	i;
 	
-// 	while(len)
-// 	{
-		
-// 	}
-// }
+	i = 0;
+	while(argv[i++])
+		;
+	i = i - 3;
+	i = i - (!ft_strncmp(argv[1], "here_doc\0", 9));
+	res = malloc(sizeof(char *) * i);
+	i = 0;
+	if ((!ft_strncmp(argv[1], "here_doc\0", 9)))
+	{
+		res[0] = join_three_lines(argv[1], " ", argv[2]);
+		i++;
+	}
+	while (argv[i + 3])
+	{
+		res[i] = argv[i + 2];
+		i++;
+	}
+	res[i] = NULL;
+	return (res);
+}
 
 int	main(int argc, char **argv, char **env)
 {
@@ -144,28 +177,24 @@ int	main(int argc, char **argv, char **env)
 	pid_t *pids;
 	// pid_t pid3;
 	int i;
+	char **cmds;
 
 	// atexit(&checkleaks);
 	if (argc < 5)
 		return (0);
+	cmds = transform_args_to_cmds(argv);
+	if (!ft_strncmp(cmds[0], "here_doc", 8))
+		fd = STDIN_FILENO;
+	else
+		fd = open(argv[1], O_RDONLY);
 	number_of_children = argc - 3;
 	number_of_pipes = number_of_children - 1;
 	truby = make_truby(number_of_pipes);
 	pids = make_pids(number_of_children);
-	fd = open(argv[1], O_RDONLY);
 	fd2 = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0644);
 	fd3 = open("logs", O_RDWR | O_TRUNC | O_CREAT, 0644);
+	// printf("%d\n", fd3);
 	paths = get_paths(env);
-	// pid = fork();
-	// if (!pid)
-	// {
-	// 	dup2(fd, STDIN_FILENO);
-	// 	close_truby(truby, 0, number_of_pipes);
-	// 	dup2(truby[0][1], STDOUT_FILENO);
-	// 	char **args = ft_split(argv[2], " ");
-	// 	char *path = valid_path(paths, args[0]);
-	// 	execve(path, args, env);
-	// }
 	i = 0;
 	while (i <= number_of_pipes)
 	{
@@ -188,9 +217,24 @@ int	main(int argc, char **argv, char **env)
 				dup2(truby[i][1], STDOUT_FILENO); 
 			}
 			close_truby(truby, i, number_of_pipes);
-			char **args = ft_split(argv[i + 2], " ");
+			ft_putnbr_fd(i, fd3);
+			char **args = ft_split(cmds[i], " ");
+			if (!ft_strncmp(args[0], "here_doc\0", 9))
+			{	
+				read_from_to(args[1], STDIN_FILENO, STDOUT_FILENO, number_of_pipes);
+				ft_split_clear(args);
+				return (0);
+			}
+			else{
 			char *path = valid_path(paths, args[0]); 
-			execve(path, args, env);
+			if(!path)
+			{
+				ft_putstr_fd("commmand not found: ", STDERR_FILENO);
+				ft_split_clear(args);
+				free(path);
+				exit (1);
+			}
+			execve(path, args, env);}
 		}
 		i++;
 	}
@@ -206,13 +250,12 @@ int	main(int argc, char **argv, char **env)
 	// 	execve(path, args, env);
 	// }
 	plumber(truby);
-	waitpid(pids[0], NULL, 0);
-	waitpid(pids[1], NULL, 0);
-	waitpid(pids[2], NULL, 0);
+	waitress(pids, number_of_children);
 	close(fd);
 	close(fd2);
 	free(valid_path(paths, "ls"));
 	ft_split_clear(paths);
+	free(pids);
 	return (0);
 }
 

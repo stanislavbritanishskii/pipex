@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/03 18:19:57 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/04 22:55:51 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/06 23:33:16 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,7 @@
 # include <sys/types.h>
 # include <sys/uio.h>
 # include <fcntl.h>
+
+void	read_from_to(char* delimimter, int input_fd, int output_fd, int number_of_pipes);
+
 #endif

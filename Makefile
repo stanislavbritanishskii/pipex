@@ -6,7 +6,7 @@
 #    By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/03 18:24:12 by sbritani          #+#    #+#              #
-#    Updated: 2023/01/04 22:41:08 by sbritani         ###   ########.fr        #
+#    Updated: 2023/01/06 20:32:30 by sbritani         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ OBJ_DIR	:= obj/
 
 NAME	:= pipex
 
-SRC		:=	main.c
+SRC		:=	main.c\
+			utils.c
 
 OBJ		:=	$(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(SRC)))
 
