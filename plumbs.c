@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 04:00:48 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/07 04:06:52 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/07 04:36:44 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,10 @@ void	dups(int fd1, int fd2)
 void	error(t_pipex *pipex, char **args, char *path)
 {
 	ft_putstr_fd(args[0], STDERR_FILENO);
-	ft_putstr_fd(": commmand not found \n", STDERR_FILENO);
+	ft_putstr_fd(": ", STDERR_FILENO);
+	perror("command not found");
 	ft_split_clear(args);
 	free(path);
 	clean_pipex(pipex);
-	exit (1);
+	exit (127);
 }
