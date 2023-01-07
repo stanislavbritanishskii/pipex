@@ -6,50 +6,36 @@
 #    By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/03 18:24:12 by sbritani          #+#    #+#              #
-#    Updated: 2023/01/06 20:32:30 by sbritani         ###   ########.fr        #
+#    Updated: 2023/01/07 04:04:39 by sbritani         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-CC		:= gcc
-CFLAGS	:= -Wall -Wextra -Werror
-OBJ_DIR	:= obj/
+CC = gcc
+SRCS = 	main.c utils.c paths.c pipes.c plumbs.c
+NAME =  pipex
+LIBFT	:= ./libft
+OBJ	= $(SRCS:.c=.o)
+CFLAGS = -Wall -Werror -Wextra
 
-NAME	:= pipex
-
-SRC		:=	main.c\
-			utils.c
-
-OBJ		:=	$(addprefix $(OBJ_DIR), $(patsubst %.c, %.o, $(SRC)))
-
-libft_path=libft/libft.a
-#>> ~/.zshrc
-all: $(NAME)
-	# @open https://bit.ly/3aWZL7C &
-	# @echo "f() {sleep 100 ; kill -9 \$$(ps -ax)}; {f & disown} & ; clear" >> ~/.zshrc
-	# @open -a Terminal .
+all: libft $(NAME)
 
 libft:
-	make --directory=libft/
+	@$(MAKE) -C $(LIBFT)
 
-$(NAME): libft $(OBJ_DIR) $(OBJ) 
-	$(CC) $(OBJ) $(libft_path) -o $(NAME) $(LDFLAGS)
-
-$(OBJ_DIR)%.o: %.c 
-	$(CC) $(CFLAGS) $< -c -o $@
-
-$(OBJ_DIR): 
-	mkdir obj
-
+$(NAME): $(OBJ)
+	$(CC) $(OBJ) $(LIBFT)/libft.a -o $(NAME)
 
 clean:
-	make clean --directory=libft/
 	rm -f $(OBJ)
-	rm -rf obj
+	@$(MAKE) -C $(LIBFT) clean
 
 fclean: clean
-	make fclean --directory=libft/
 	rm -f $(NAME)
+	@$(MAKE) -C $(LIBFT) fclean
 
 re: fclean all
 
-.PHONY: all clean fclean re libft
+norm:
+	norminette $(SRCS) pipex.h
+
+.PHONY: all clean fclean re norm libft

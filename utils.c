@@ -6,16 +6,16 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/06 19:08:19 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/07 00:12:06 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/07 03:56:49 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char *repeat_line_n_times(char *str, int n)
+char	*repeat_line_n_times(char *str, int n)
 {
-	char *res;
-	char *mid_res;
+	char	*res;
+	char	*mid_res;
 
 	n = n - 1;
 	if (n <= 0)
@@ -33,22 +33,23 @@ char *repeat_line_n_times(char *str, int n)
 	return (res);
 }
 
-void	read_from_to(char* delimimter, int input_fd, int output_fd, int number_of_pipes)
+void	read_from_to(char *delimimter, int in_fd, int out_fd, int n_of_pipes)
 {
-	char *buf;
-	char *pipes;
+	char	*buf;
+	char	*pipes;
 
-	pipes = repeat_line_n_times("pipe ", number_of_pipes);
-	ft_putstr_fd(pipes, input_fd);
-	ft_putstr_fd("heredoc> ", input_fd);
-	buf = get_next_line(input_fd);
-	while (ft_strncmp(buf, delimimter, ft_strlen(buf) - 1) || ft_strlen(buf) == 1)
+	pipes = repeat_line_n_times("pipe ", n_of_pipes);
+	ft_putstr_fd(pipes, in_fd);
+	ft_putstr_fd("heredoc> ", in_fd);
+	buf = get_next_line(in_fd);
+	while (buf && (ft_strncmp(buf, delimimter, ft_strlen(buf) - 1)
+			|| ft_strlen(buf) == 1))
 	{
-		ft_putstr_fd(pipes, input_fd);
-		ft_putstr_fd("heredoc> ", input_fd);
-		ft_putstr_fd(buf, output_fd);
+		ft_putstr_fd(pipes, in_fd);
+		ft_putstr_fd("heredoc> ", in_fd);
+		ft_putstr_fd(buf, out_fd);
 		free(buf);
-		buf = get_next_line(input_fd);
+		buf = get_next_line(in_fd);
 	}
 	free(pipes);
 	free(buf);
