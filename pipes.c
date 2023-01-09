@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 04:02:19 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/09 16:01:26 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/09 16:07:55 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	pipex_init(t_pipex *pipex, char **argv, int argc, char **env)
 		pipex->fd = open(argv[1], O_RDONLY);
 	pipex->paths = get_paths(env);
 	if (!pipex->here_doc)
-		pipex->fd2 = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0644);
+		pipex->fd2 = open(argv[argc - 1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
 	else
 	{
 		pipex->fd2 = open(argv[argc - 1], O_RDWR | O_CREAT | O_APPEND, 0644);
