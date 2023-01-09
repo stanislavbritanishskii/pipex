@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 04:02:19 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/07 04:08:44 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/09 16:01:26 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,9 @@ int	pipex_init(t_pipex *pipex, char **argv, int argc, char **env)
 	pipex->number_of_pipes = pipex->number_of_children - 1;
 	pipex->truby = make_truby(pipex->number_of_pipes);
 	pipex->pids = make_pids(pipex->number_of_children);
-	pipex->fd = open(argv[1], O_RDONLY);
+	pipex->fd = 1;
+	if (!pipex->here_doc)
+		pipex->fd = open(argv[1], O_RDONLY);
 	pipex->paths = get_paths(env);
 	if (!pipex->here_doc)
 		pipex->fd2 = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0644);
