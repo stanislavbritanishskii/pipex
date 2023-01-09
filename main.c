@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/09 16:48:23 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/09 17:00:15 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/09 17:19:29 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int	main(int argc, char **argv, char **env)
 	int		i;
 	t_pipex	pipex;
 
-	if (argc != 4 || !ft_strncmp(argv[1], "here_doc", 8))
+	if (argc != 5 || !ft_strncmp(argv[1], "here_doc", 8))
 		exit_input_error("incorrect input!\n");
 	i = pipex_init(&pipex, argv, argc, env);
 	if (pipex.fd2 == -1)
