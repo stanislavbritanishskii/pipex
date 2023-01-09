@@ -6,7 +6,7 @@
 /*   By: sbritani <sbritani@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/03 18:19:59 by sbritani          #+#    #+#             */
-/*   Updated: 2023/01/07 04:24:45 by sbritani         ###   ########.fr       */
+/*   Updated: 2023/01/09 16:02:19 by sbritani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,13 @@
 // }
 // atexit(&checkleaks);
 
+void	exit_error(char *exit_message, t_pipex *pipex)
+{
+	perror(exit_message);
+	clean_pipex(pipex);
+	exit (1);
+}
+
 int	main(int argc, char **argv, char **env)
 {
 	int		i;
@@ -27,10 +34,9 @@ int	main(int argc, char **argv, char **env)
 		return (1);
 	i = pipex_init(&pipex, argv, argc, env);
 	if (pipex.fd2 == -1)
-	{
-		clean_pipex(&pipex);
-		exit (1);
-	}
+		exit_error(argv[argc - 1], &pipex);
+	if (pipex.fd == -1)
+		exit_error(argv[1], &pipex);
 	while (i <= pipex.number_of_pipes)
 	{
 		piping(&pipex, i, env);
